@@ -83,6 +83,7 @@ void ini_parser::readFile(std::string fileName)
 			myMap[sectionName].insert(std::pair<std::string, std::string>(varName, value));
 		}
 	}
+	file.close();
 }
 
 /// <summary>
