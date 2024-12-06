@@ -1,0 +1,4 @@
+parser/
+x64/
+.vs/
+*.user
