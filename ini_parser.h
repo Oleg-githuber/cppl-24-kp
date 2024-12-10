@@ -46,10 +46,23 @@ public:
 		{
 			std::cout << ex.what() << '\n';
 		}
-
 		try
 		{
 			return static_cast<T>(convertString(strValue));
+		}
+		catch (const std::exception& ex)
+		{
+			std::cout << ex.what() << '\n';
+		}
+	}
+
+	template<>
+	std::string get_value(std::string str)
+	{
+		std::string strValue{};
+		try
+		{
+			return getString(str);
 		}
 		catch (const std::exception& ex)
 		{

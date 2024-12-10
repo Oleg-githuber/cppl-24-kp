@@ -6,7 +6,7 @@
 int main()
 {
     ini_parser parser("file.ini");
-    auto a = parser.get_value<int>("Section1.var1");
+    auto a = parser.get_value<std::string>("Section1.var1");
     std::cout << a << '\n';
 
     return EXIT_SUCCESS;
