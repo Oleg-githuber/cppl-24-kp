@@ -6,15 +6,7 @@
 /// <param name="fileName">имя файла</param>
 ini_parser::ini_parser(std::string fileName): stringCounter{}
 {
-	try
-	{
-		readFile(fileName);
-	}
-	catch (const std::exception& ex)
-	{
-		std::cout << ex.what() << '\n' << "Error is in raw " << stringCounter << " of " << fileName << "!\n";
-
-	}
+	readFile(fileName);
 }
 
 /// <summary>
@@ -57,7 +49,8 @@ void ini_parser::readFile(std::string fileName)
 			}
 			if (ch == ']')
 			{
-				throw std::exception("Expected \"[\" before \"]\"");
+				std::string str{ "Expected \"[\" before \"]\"! Line " + std::to_string(stringCounter) };
+				throw std::exception(str.c_str());
 			}
 			if (ch != ';')
 			{
@@ -73,7 +66,8 @@ void ini_parser::readFile(std::string fileName)
 			{
 				if (myMap[sectionName].find(varName) != myMap[sectionName].end())
 				{
-					throw std::exception("Duplicaate of variable!");
+					std::string str{ "Duplicate of variable! Line " + std::to_string(stringCounter) };
+					throw std::exception(str.c_str());
 				}
 			}
 		}
@@ -106,11 +100,13 @@ std::string ini_parser::readSection(std::string& tempString, int& i)
 		}
 		if ((ch == '\n') || (ch == ' ') || (ch == '\t') || (ch == ';'))
 		{
-			throw std::exception("Incorrect section name!");
+			std::string str{ "Incorrect section name! Line " + std::to_string(stringCounter) };
+			throw std::exception(str.c_str());
 		}
 		if (i == tempString.length() - 1)
 		{
-			throw std::exception("Expected \"]\"!");
+			std::string str{ "Expected \"]\"! Line " + std::to_string(stringCounter) };
+			throw std::exception(str.c_str());
 		}
 		sectionName = sectionName + ch;
 		++i;
@@ -145,7 +141,8 @@ std::string ini_parser::readVarName(std::string& tempString, int& i)
 		}
 		if (doWaitEqual && ((ch != ' ') || (ch != '\t')))
 		{
-			throw std::exception("Name of variable can not contain space!");
+			std::string str{ "Name of variable can not contain space!! Line " + std::to_string(stringCounter) };
+			throw std::exception(str.c_str());
 		}
 		if (!doWaitEqual)
 		{
@@ -153,7 +150,8 @@ std::string ini_parser::readVarName(std::string& tempString, int& i)
 		}
 		++i;
 	}
-	throw std::exception("Name of variable can not contain space!");
+	std::string str{ "Name of variable can not contain space!! Line " + std::to_string(stringCounter) };
+	throw std::exception(str.c_str());
 }
 
 /// <summary>
@@ -174,9 +172,10 @@ std::string ini_parser::readValue(std::string& tempString, int& i)
 		{
 			if (value.empty())
 			{
-				throw std::exception("Empty value!");
+				std::string str{ "Empty value!! Line " + std::to_string(stringCounter) };
+				throw std::exception(str.c_str());
 			}
-			i = tempString.length();
+			i = static_cast<int>(tempString.length());
 			return value;
 		}
 		value = value + ch;
@@ -184,7 +183,8 @@ std::string ini_parser::readValue(std::string& tempString, int& i)
 	}
 	if ((i >= tempString.length()) && (value.empty()))
 	{
-		throw std::exception("Empty value!");
+		std::string str{ "Empty value!! Line " + std::to_string(stringCounter) };
+		throw std::exception(str.c_str());
 	}
 	cutString(value);
 	return value;
@@ -247,30 +247,13 @@ void ini_parser::printVarList(std::string sectionName)
 }
 
 /// <summary>
-/// Преобразование строки в число
-/// </summary>
-/// <param name="str">строка</param>
-/// <returns>число</returns>
-double ini_parser::convertString(std::string str)
-{
-	try
-	{
-		return std::stod(str);
-	}
-	catch (const std::exception&)
-	{
-		throw std::exception("Incorrect type!");
-	}
-}
-
-/// <summary>
 /// Обрезание пробелов в начале и в конце строки
 /// </summary>
 /// <param name="str">строка</param>
-void ini_parser::cutString(std::string& str)
+std::string ini_parser::cutString(std::string& str)
 {
-	int startLetter{};
-	int finalLetter{};
+	size_t startLetter{};
+	size_t finalLetter{};
 	for (size_t i{}; i < str.length(); ++i)
 	{
 		if (str[i] != ' ' && str[i] != '\t')
@@ -285,5 +268,16 @@ void ini_parser::cutString(std::string& str)
 			finalLetter = i;
 		}
 	}
-	str.substr(startLetter, str.length() - finalLetter);
+	return str.substr(startLetter, str.length() - finalLetter);
+}
+
+void ini_parser::checkFloatingPointInNumber(std::string& str)
+{
+	for (char c : str)
+	{
+		if (c == '.')
+		{
+			throw std::exception("Value has floating point!");
+		}
+	}
 }
