@@ -6,6 +6,9 @@
 #include <fstream>
 #include <exception>
 
+#define LOW_DIGITAL_BOUND 48
+#define HIGH_DIGITAL_BOUND (LOW_DIGITAL_BOUND + 9)
+
 class ini_parser
 {
 private:
@@ -23,15 +26,26 @@ private:
 
 	std::string getString(std::string str);		// Получение значения переменной в виде строки
 
-	void printVarList(std::string sectionName);	// Вывод на экран списка переменных определенной секции
+	std::string varList(std::string sectionName);	// Вывод на экран списка переменных определенной секции
 
 	std::string cutString(std::string& str);		// Обрезание строки
+
+	/// <summary>
+	/// Запрет неявного преобразования числа с плавающей точкой в целое
+	/// </summary>
+	/// <param name="str"></param>
+	void checkFloatingPointInNumber(std::string& str);
+	/// <summary>
+	/// Проверка на содержание символов, отличных от цыфр
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="str"></param>
+	/// <returns></returns>
+	void checDigitsInString(std::string& str);
 
 public:
 
 	ini_parser(std::string fileName);	// Конструктор
-
-	void checkFloatingPointInNumber(std::string& str);
 
 	// Шаблон получения значения переменной выбранного типа
 	
@@ -39,47 +53,34 @@ public:
 	T get_value(std::string str)
 	{
 		//static_assert(sizeof(T) == -1, "Not implemented type for get_value!");
-		if (sizeof(T) == -1)
-		{
-			throw std::exception("Not implemented type for get_value!");
-		}
 		throw std::exception("Type of get_value() is not correct!");
 	} 
+
+	// Специализации шаблона
 
 	template<>
 	double get_value(std::string str)
 	{
-		double number{};
-		if (number = std::stod(getString(str)))
-		{
-			return number;
-		}
-		throw std::exception("Value is not double!");
+		std::string strValue{ getString(str) };
+		checDigitsInString(strValue);
+		return std::stod(strValue);
 	}
 
 	template<>
 	float get_value(std::string str)
 	{
-		float number{};
-		if (number = std::stof(getString(str)))
-		{
-			return number;
-		}
-		throw std::exception("Value is not float!");
+		std::string strValue{ getString(str) };
+		checDigitsInString(strValue);
+		return std::stof(strValue);
 	}
 
 	template<>
 	int get_value(std::string str)
 	{
-		int number{};
-		std::string str1{ getString(str) };
-		if (number = std::stoi(str1))
-		{
-			// Запрет неявного преобразования числа с плавающей точкой в целое
-			checkFloatingPointInNumber(str);
-			return number;
-		}
-		throw std::exception("Value is not integer!");
+		std::string strValue{ getString(str) };
+		checDigitsInString(strValue);
+		checkFloatingPointInNumber(strValue);
+		return std::stoi(strValue);
 	}
 
 	template<>
@@ -96,19 +97,16 @@ public:
 	template<>
 	long get_value(std::string str)
 	{
-		long number{};
-		if (number = std::stol(getString(str)))
-		{
-			checkFloatingPointInNumber(str);
-			return number;
-		}
-		throw std::exception("Value is not long!");
+		std::string strValue{ getString(str) };
+		checDigitsInString(strValue);
+		checkFloatingPointInNumber(strValue);
+		return std::stol(strValue);
 	}
 
 	template<>
 	unsigned long get_value(std::string str)
 	{
-		long number{ std::stol(getString(str)) };
+		long number{ get_value<long>(str) };
 		if (number < 0)
 		{
 			throw std::exception("Value is not unsigned!");
@@ -119,19 +117,16 @@ public:
 	template<>
 	long long get_value(std::string str)
 	{
-		long long number{};
-		if (number = std::stoll(getString(str)))
-		{
-			checkFloatingPointInNumber(str);
-			return number;
-		}
-		throw std::exception("Value is not long long!");
+		std::string strValue{ getString(str) };
+		checDigitsInString(strValue);
+		checkFloatingPointInNumber(strValue);
+		return std::stoll(strValue);
 	}
 
 	template<>
 	unsigned long long get_value(std::string str)
 	{
-		long long number{ std::stoll(getString(str)) };
+		long long number{ get_value<long long>(str) };
 		if (number < 0)
 		{
 			throw std::exception("Value is not unsigned!");

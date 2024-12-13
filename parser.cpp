@@ -8,7 +8,7 @@ int main()
 	try
 	{
 		ini_parser parser("file.ini");
-		auto a = parser.get_value<int>("Section1.var1");
+		auto a = parser.get_value<unsigned int>("Section2.var1");
 		std::cout << a << '\n';
 	}
 	catch (const std::exception& ex)

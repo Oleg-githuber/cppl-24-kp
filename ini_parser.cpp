@@ -176,7 +176,7 @@ std::string ini_parser::readValue(std::string& tempString, int& i)
 				throw std::exception(str.c_str());
 			}
 			i = static_cast<int>(tempString.length());
-			return value;
+			return cutString(value);
 		}
 		value = value + ch;
 		++i;
@@ -186,8 +186,7 @@ std::string ini_parser::readValue(std::string& tempString, int& i)
 		std::string str{ "Empty value!! Line " + std::to_string(stringCounter) };
 		throw std::exception(str.c_str());
 	}
-	cutString(value);
-	return value;
+	return cutString(value);
 }
 
 /// <summary>
@@ -226,9 +225,9 @@ std::string ini_parser::getString(std::string str)
 	}
 	if (myMap[sectionName].find(varName) == myMap[sectionName].end())
 	{
-		std::cout << "You entered incorrect variable name. You need to enter one of the list:\n";
-		printVarList(sectionName);
-		throw std::exception("Incorrect parameter!");
+		std::string message{ "You entered incorrect variable name. You need to enter one of the list:\n" };
+		message = message + varList(sectionName);
+		throw std::exception(message.c_str());
 	}
 	return myMap[sectionName][varName];
 }
@@ -237,13 +236,16 @@ std::string ini_parser::getString(std::string str)
 /// Вывод на экран всех переменных выбранной секции
 /// </summary>
 /// <param name="sectionName">имя секции</param>
-void ini_parser::printVarList(std::string sectionName)
+std::string ini_parser::varList(std::string sectionName)
 {
+	std::string str{};
 	std::map<std::string, std::string>::iterator it{ myMap[sectionName].begin() };
 	while (it != myMap[sectionName].end())
 	{
-		std::cout << it->first << '\n';
+		str = str + it->first + '\n';
+		++it;
 	}
+	return str;
 }
 
 /// <summary>
@@ -254,23 +256,29 @@ std::string ini_parser::cutString(std::string& str)
 {
 	size_t startLetter{};
 	size_t finalLetter{};
-	for (size_t i{}; i < str.length(); ++i)
+	for (size_t i{}; i < str.size(); ++i)
 	{
 		if (str[i] != ' ' && str[i] != '\t')
 		{
 			startLetter = i;
+			break;
 		}
 	}
-	for (size_t i{str.length() - 1}; i < str.length(); --i)
+	for (size_t i{str.size() - 1}; i < str.size(); --i)
 	{
 		if (str[i] != ' ' && str[i] != '\t')
 		{
 			finalLetter = i;
+			break;
 		}
 	}
-	return str.substr(startLetter, str.length() - finalLetter);
+	return str.substr(startLetter, finalLetter - startLetter + 1);
 }
 
+/// <summary>
+/// Проверка на наличие плавающей точки
+/// </summary>
+/// <param name="str"></param>
 void ini_parser::checkFloatingPointInNumber(std::string& str)
 {
 	for (char c : str)
@@ -278,6 +286,28 @@ void ini_parser::checkFloatingPointInNumber(std::string& str)
 		if (c == '.')
 		{
 			throw std::exception("Value has floating point!");
+		}
+	}
+}
+
+/// <summary>
+/// Проверка на наличие символо, кроме цифр
+/// </summary>
+/// <param name="str"></param>
+void ini_parser::checDigitsInString(std::string& str)
+{
+	for (size_t i{}; i < str.size(); ++i)
+	{
+		char c{ str[i] };
+		if (c < LOW_DIGITAL_BOUND || c > HIGH_DIGITAL_BOUND)
+		{
+			if (c != '.')
+			{
+				if (i != 0 || c != '-')
+				{
+					throw std::exception("Value is not a number!");
+				}
+			}
 		}
 	}
 }
