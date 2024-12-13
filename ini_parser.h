@@ -18,11 +18,11 @@ private:
 
 	void readFile(std::string fileName);	// Чтение данных из файла
 
-	std::string readSection(std::string& tempString, int& i);	// Чтение имени секции
+	std::string readSection(const std::string& tempString, int& i);	// Чтение имени секции
 
-	std::string readVarName(std::string& tempString, int& i);	// Чтение имени переменной
+	std::string readVarName(const std::string& tempString, int& i);	// Чтение имени переменной
 
-	std::string readValue(std::string& tempString, int& i);		// Чтение значения переменной
+	std::string readValue(const std::string& tempString, int& i);		// Чтение значения переменной
 
 	std::string getString(std::string str);		// Получение значения переменной в виде строки
 

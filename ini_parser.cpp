@@ -86,7 +86,7 @@ void ini_parser::readFile(std::string fileName)
 /// <param name="tempString">строка из ini-файла</param>
 /// <param name="i">номер символа из файла</param>
 /// <returns></returns>
-std::string ini_parser::readSection(std::string& tempString, int& i)
+std::string ini_parser::readSection(const std::string& tempString, int& i)
 {
 	char ch{};
 	std::string sectionName{};
@@ -120,7 +120,7 @@ std::string ini_parser::readSection(std::string& tempString, int& i)
 /// <param name="tempString">строка из ini-файла</param>
 /// <param name="i">номер символа в строке</param>
 /// <returns></returns>
-std::string ini_parser::readVarName(std::string& tempString, int& i)
+std::string ini_parser::readVarName(const std::string& tempString, int& i)
 {
 	bool doWaitEqual{};
 	std::string varName{};
@@ -160,7 +160,7 @@ std::string ini_parser::readVarName(std::string& tempString, int& i)
 /// <param name="tempString">строка из ini-файла</param>
 /// <param name="i">номер символа в строке</param>
 /// <returns></returns>
-std::string ini_parser::readValue(std::string& tempString, int& i)
+std::string ini_parser::readValue(const std::string& tempString, int& i)
 {
 	std::string value{};
 	char ch{};
